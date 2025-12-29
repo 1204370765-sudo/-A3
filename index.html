@@ -1,0 +1,658 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>香港高才A类资格智能评估</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Microsoft YaHei', sans-serif; 
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #1a2a6c 0%, #2042b0 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+        .header p {
+            opacity: 0.9;
+            font-size: 16px;
+        }
+        .progress-bar {
+            height: 6px;
+            background: #e0e0e0;
+            margin-bottom: 30px;
+        }
+        .progress {
+            height: 100%;
+            background: #4CAF50;
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+        .step {
+            display: none;
+            padding: 30px;
+        }
+        .step.active {
+            display: block;
+        }
+        .question {
+            margin-bottom: 25px;
+        }
+        .question h3 {
+            font-size: 20px;
+            margin-bottom: 15px;
+            color: #2c3e50;
+        }
+        .options {
+            display: grid;
+            gap: 12px;
+        }
+        .option {
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: #f8f9fa;
+        }
+        .option:hover {
+            border-color: #2042b0;
+            background: #f0f4ff;
+        }
+        .option.selected {
+            border-color: #2042b0;
+            background: #e8eeff;
+        }
+        .option input {
+            display: none;
+        }
+        .btn {
+            padding: 12px 30px;
+            background: #2042b0;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.3s;
+            margin-top: 20px;
+        }
+        .btn:hover {
+            background: #1a2a6c;
+        }
+        .btn:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+        }
+        .btn-group {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+        }
+        .result {
+            display: none;
+            padding: 40px;
+            text-align: center;
+        }
+        .score-circle {
+            width: 150px;
+            height: 150px;
+            margin: 0 auto 30px;
+            border-radius: 50%;
+            background: conic-gradient(#4CAF50 var(--score), #f0f0f0 0%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        .score-circle::before {
+            content: '';
+            position: absolute;
+            width: 120px;
+            height: 120px;
+            background: white;
+            border-radius: 50%;
+        }
+        .score-text {
+            position: relative;
+            z-index: 1;
+            font-size: 36px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        .result-level {
+            font-size: 24px;
+            margin: 20px 0;
+            color: #2042b0;
+        }
+        .result-details {
+            text-align: left;
+            margin: 30px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+        .result-details h4 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+        }
+        .next-steps {
+            background: #e8f5e9;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        .contact-box {
+            background: #fff8e1;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 30px;
+        }
+        /* 新增微信号样式 */
+        .wechat-contact {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            margin: 25px 0;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            border: 1px solid #e0e0e0;
+            text-align: center;
+        }
+        .wechat-id-box {
+            background: linear-gradient(135deg, #2042b0 0%, #1a2a6c 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+        }
+        .wechat-id {
+            font-size: 28px;
+            font-weight: bold;
+            letter-spacing: 2px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        .copy-btn {
+            background: white;
+            color: #2042b0;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-top: 15px;
+            transition: all 0.3s;
+        }
+        .copy-btn:hover {
+            background: #f0f4ff;
+            transform: translateY(-2px);
+        }
+        .copy-btn.copied {
+            background: #4CAF50;
+            color: white;
+        }
+        .benefits-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .benefit-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>香港高才A类资格智能评估</h1>
+            <p>基于200+成功案例数据 · 3分钟获取精准报告</p>
+        </div>
+        
+        <div class="progress-bar">
+            <div class="progress" id="progress"></div>
+        </div>
+        
+        <form id="assessmentForm">
+            <!-- 步骤1 -->
+            <div class="step active" id="step1">
+                <div class="question">
+                    <h3>1. 您的年收入情况？</h3>
+                    <div class="options">
+                        <label class="option" onclick="selectOption(this)">
+                            <input type="radio" name="income" value="40">
+                            超过300万港币/年
+                        </label>
+                        <label class="option" onclick="selectOption(this)">
+                            <input type="radio" name="income" value="35">
+                            250-300万港币/年
+                        </label>
+                        <label class="option" onclick="selectOption(this)">
+                            <input type="radio" name="income" value="20">
+                            200-250万港币/年
+                        </label>
+                        <label class="option" onclick="selectOption(this)">
+                            <input type="radio" name="income" value="0">
+                            低于200万港币/年
+                        </label>
+                    </div>
+                </div>
+                <button type="button" class="btn" onclick="nextStep()" id="nextBtn1" disabled>下一题</button>
+            </div>
+            
+            <!-- 步骤2 -->
+            <div class="step" id="step2">
+                <div class="question">
+                    <h3>2. 您的主要收入来源？</h3>
+                    <div class="options">
+                        <label class="option" onclick="selectOption(this)">
+                            <input type="radio" name="incomeType" value="30">
+                            工资薪金收入
+                        </label>
+                        <label class="option" onclick="selectOption(this)">
+                            <input type="radio" name="incomeType" value="35">
+                            企业经营收入
+                        </label>
+                        <label class="option" onclick="selectOption(this)">
+                            <input type="radio" name="incomeType" value="25">
+                            投资收益为主
+                        </label>
+                        <label class="option" onclick="selectOption(this)">
+                            <input type="radio" name="incomeType" value="20">
+                            其他类型收入
+                        </label>
+                    </div>
+                </div>
+                <div class="btn-group">
+                    <button type="button" class="btn" onclick="prevStep()">上一题</button>
+                    <button type="button" class="btn" onclick="nextStep()" id="nextBtn2" disabled>下一题</button>
+                </div>
+            </div>
+            
+            <!-- 步骤3 -->
+            <div class="step" id="step3">
+                <div class="question">
+                    <h3>3. 您的工作年限？</h3>
+                    <div class="options">
+                        <label class="option" onclick="selectOption(this)">
+                            <input type="radio" name="experience" value="25">
+                            10年以上
+                        </label>
+                        <label class="option" onclick="selectOption(this)">
+                            <input type="radio" name="experience" value="20">
+                            5-10年
+                        </label>
+                        <label class="option" onclick="selectOption(this)">
+                            <input type="radio" name="experience" value="15">
+                            3-5年
+                        </label>
+                        <label class="option" onclick="selectOption(this)">
+                            <input type="radio" name="experience" value="10">
+                            3年以下
+                        </label>
+                    </div>
+                </div>
+                <div class="btn-group">
+                    <button type="button" class="btn" onclick="prevStep()">上一题</button>
+                    <button type="button" class="btn" onclick="nextStep()" id="nextBtn3" disabled>下一题</button>
+                </div>
+            </div>
+            
+            <!-- 步骤4 -->
+            <div class="step" id="step4">
+                <div class="question">
+                    <h3>4. 您所在的行业领域？</h3>
+                    <div class="options">
+                        <label class="option" onclick="selectOption(this)">
+                            <input type="radio" name="industry" value="30">
+                            金融/投资/保险
+                        </label>
+                        <label class="option" onclick="selectOption(this)">
+                            <input type="radio" name="industry" value="25">
+                            科技/互联网/AI
+                        </label>
+                        <label class="option" onclick="selectOption(this)">
+                            <input type="radio" name="industry" value="20">
+                            制造/贸易/实业
+                        </label>
+                        <label class="option" onclick="selectOption(this)">
+                            <input type="radio" name="industry" value="15">
+                            其他行业
+                        </label>
+                    </div>
+                </div>
+                <div class="btn-group">
+                    <button type="button" class="btn" onclick="prevStep()">上一题</button>
+                    <button type="button" class="btn" onclick="calculateResult()" id="submitBtn" disabled>查看结果</button>
+                </div>
+            </div>
+            
+            <!-- 结果页 -->
+            <div class="result" id="result">
+                <div class="score-circle" id="scoreCircle">
+                    <div class="score-text" id="scoreText">0%</div>
+                </div>
+                
+                <div class="result-level" id="resultLevel"></div>
+                
+                <div class="result-details">
+                    <h4>📊 您的评估详情：</h4>
+                    <div id="detailsContent"></div>
+                </div>
+                
+                <div class="next-steps">
+                    <h4>🎯 下一步行动建议：</h4>
+                    <div id="nextStepsContent"></div>
+                </div>
+                
+                <!-- 微信号联系区域 -->
+                <div class="wechat-contact">
+                    <h3 style="color: #2042b0; margin-bottom: 20px;">💼 获取专属专业指导</h3>
+                    
+                    <div class="wechat-id-box">
+                        <p style="margin-bottom: 10px; font-size: 16px;">请添加专业顾问微信号</p>
+                        <div class="wechat-id" id="wechatId">Bonroyhk3300</div>
+                        <p style="margin-top: 10px; font-size: 14px; opacity: 0.9;">添加时请备注：<strong>高才评估</strong></p>
+                    </div>
+                    
+                    <button class="copy-btn" onclick="copyWechatId()" id="copyBtn">
+                        📋 点击复制微信号
+                    </button>
+                    
+                    <div style="margin-top: 25px;">
+                        <h4 style="color: #333; margin-bottom: 15px;">✅ 添加后您将获得：</h4>
+                        <div class="benefits-list">
+                            <div class="benefit-item">
+                                <div style="font-size: 24px; color: #2042b0; margin-bottom: 8px;">📄</div>
+                                <strong>专属申请方案</strong>
+                                <p style="font-size: 13px; color: #666; margin-top: 5px;">基于您的评估结果定制</p>
+                            </div>
+                            <div class="benefit-item">
+                                <div style="font-size: 24px; color: #2042b0; margin-bottom: 8px;">🎁</div>
+                                <strong>全套申请资料包</strong>
+                                <p style="font-size: 13px; color: #666; margin-top: 5px;">模板+清单+案例</p>
+                            </div>
+                            <div class="benefit-item">
+                                <div style="font-size: 24px; color: #2042b0; margin-bottom: 8px;">📅</div>
+                                <strong>免费专业咨询</strong>
+                                <p style="font-size: 13px; color: #666; margin-top: 5px;">15分钟深度解答</p>
+                            </div>
+                            <div class="benefit-item">
+                                <div style="font-size: 24px; color: #2042b0; margin-bottom: 8px;">👥</div>
+                                <strong>加入精英社群</strong>
+                                <p style="font-size: 13px; color: #666; margin-top: 5px;">与成功获批者交流</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-top: 25px; padding: 15px; background: #f0f7ff; border-radius: 8px; border-left: 4px solid #2042b0;">
+                        <p style="color: #2042b0; margin: 0; font-size: 14px;">
+                            ⚡ <strong>限时福利：</strong>前100名添加好友送《香港身份规划全指南》（价值998元）
+                        </p>
+                    </div>
+                    
+                    <div style="margin-top: 20px; padding: 12px; background: #f8f9fa; border-radius: 6px;">
+                        <p style="font-size: 13px; color: #666; margin: 0;">
+                            💡 <strong>操作指引：</strong>复制上方微信号 → 打开微信 → 点击"添加朋友" → 粘贴微信号 → 搜索添加 → 发送验证信息"<strong>高才评估</strong>"
+                        </p>
+                    </div>
+                </div>
+                
+                <button type="button" class="btn" onclick="restartTest()" style="margin-top: 30px;">
+                    重新测试
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        let currentStep = 1;
+        const totalSteps = 4;
+        let totalScore = 0;
+        const WECHAT_ID = 'Bonroyhk3300';
+        
+        function selectOption(element) {
+            const parent = element.parentElement;
+            parent.querySelectorAll('.option').forEach(opt => {
+                opt.classList.remove('selected');
+            });
+            element.classList.add('selected');
+            
+            const currentStepBtn = document.getElementById(`nextBtn${currentStep}`) || 
+                                  document.getElementById('submitBtn');
+            if (currentStepBtn) {
+                currentStepBtn.disabled = false;
+            }
+        }
+        
+        function updateProgress() {
+            const progress = (currentStep / totalSteps) * 100;
+            document.getElementById('progress').style.width = `${progress}%`;
+        }
+        
+        function nextStep() {
+            if (currentStep < totalSteps) {
+                document.getElementById(`step${currentStep}`).classList.remove('active');
+                currentStep++;
+                document.getElementById(`step${currentStep}`).classList.add('active');
+                updateProgress();
+            }
+        }
+        
+        function prevStep() {
+            if (currentStep > 1) {
+                document.getElementById(`step${currentStep}`).classList.remove('active');
+                currentStep--;
+                document.getElementById(`step${currentStep}`).classList.add('active');
+                updateProgress();
+            }
+        }
+        
+        function calculateResult() {
+            // 收集所有答案
+            const answers = {
+                income: parseInt(document.querySelector('input[name="income"]:checked')?.value || 0),
+                incomeType: parseInt(document.querySelector('input[name="incomeType"]:checked')?.value || 0),
+                experience: parseInt(document.querySelector('input[name="experience"]:checked')?.value || 0),
+                industry: parseInt(document.querySelector('input[name="industry"]:checked')?.value || 0)
+            };
+            
+            totalScore = answers.income + answers.incomeType + answers.experience + answers.industry;
+            
+            // 隐藏表单，显示结果
+            document.getElementById(`step${currentStep}`).classList.remove('active');
+            document.getElementById('result').style.display = 'block';
+            
+            // 根据分数显示不同的微信号（如果需要分级）
+            showResult(totalScore);
+        }
+        
+        function showResult(score) {
+            const percentage = Math.min(Math.round((score / 130) * 100), 100);
+            
+            // 更新分数显示
+            document.getElementById('scoreText').textContent = `${percentage}%`;
+            document.getElementById('scoreCircle').style.setProperty('--score', `${percentage}%`);
+            
+            // 根据分数显示等级和建议
+            let level = '';
+            let details = '';
+            let nextSteps = '';
+            
+            if (percentage >= 80) {
+                level = '🌟 高度符合申请条件';
+                details = `
+                    <p><strong>优势分析：</strong></p>
+                    <ul>
+                        <li>您的收入水平完全满足高才A类要求</li>
+                        <li>收入类型证明材料相对容易准备</li>
+                        <li>行业背景受香港政府欢迎</li>
+                        <li>工作经验丰富，综合评分高</li>
+                    </ul>
+                    <p><strong>建议重点准备：</strong></p>
+                    <ul>
+                        <li>完整的纳税证明和收入银行流水</li>
+                        <li>公司营业执照及相关经营证明（如为企业主）</li>
+                        <li>个人简历及成就证明</li>
+                    </ul>
+                `;
+                nextSteps = `
+                    <ol>
+                        <li><strong>立即开始材料准备</strong>：预计准备时间2-4周</li>
+                        <li><strong>添加微信号 <code style="background: #e8eeff; padding: 2px 6px; border-radius: 3px;">${WECHAT_ID}</code></strong> 预约专业咨询</li>
+                        <li><strong>制定申请时间表</strong>：把握最佳申请时机</li>
+                        <li><strong>准备备用方案</strong>：应对可能的问题</li>
+                    </ol>
+                `;
+            } else if (percentage >= 60) {
+                level = '✅ 基本符合条件，需补充材料';
+                details = `
+                    <p><strong>现状分析：</strong></p>
+                    <ul>
+                        <li>您基本满足收入门槛要求</li>
+                        <li>部分条件需要进一步优化</li>
+                        <li>材料准备需要特别注意完整性</li>
+                    </ul>
+                    <p><strong>需要关注的方面：</strong></p>
+                    <ul>
+                        <li>收入证明的连续性和稳定性</li>
+                        <li>收入来源的合法证明</li>
+                        <li>个人背景的突出亮点挖掘</li>
+                    </ul>
+                `;
+                nextSteps = `
+                    <ol>
+                        <li><strong>全面评估现有材料</strong>：找出薄弱环节</li>
+                        <li><strong>添加微信号 <code style="background: #e8eeff; padding: 2px 6px; border-radius: 3px;">${WECHAT_ID}</code></strong> 获取优化建议</li>
+                        <li><strong>考虑联合申请方案</strong>：如结合其他人才计划</li>
+                        <li><strong>寻求专业指导</strong>：提高获批概率</li>
+                    </ol>
+                `;
+            } else {
+                level = '⚠️ 暂不符合或需重大提升';
+                details = `
+                    <p><strong>主要原因：</strong></p>
+                    <ul>
+                        <li>收入未达到250万港币标准</li>
+                        <li>或收入证明材料难以完整提供</li>
+                        <li>背景与香港需求匹配度不足</li>
+                    </ul>
+                    <p><strong>替代方案建议：</strong></p>
+                    <ul>
+                        <li>考虑香港优才计划或其他人才引进计划</li>
+                        <li>规划提升收入至达标水平</li>
+                        <li>积累相关行业经验</li>
+                    </ul>
+                `;
+                nextSteps = `
+                    <ol>
+                        <li><strong>探索其他香港人才计划</strong>：如优才、专才等</li>
+                        <li><strong>添加微信号 <code style="background: #e8eeff; padding: 2px 6px; border-radius: 3px;">${WECHAT_ID}</code></strong> 咨询替代方案</li>
+                        <li><strong>增强行业竞争力</strong>：获取相关资质认证</li>
+                        <li><strong>定期重新评估</strong>：每6个月测试一次</li>
+                    </ol>
+                `;
+            }
+            
+            document.getElementById('resultLevel').textContent = level;
+            document.getElementById('detailsContent').innerHTML = details;
+            document.getElementById('nextStepsContent').innerHTML = nextSteps;
+        }
+        
+        function copyWechatId() {
+            const wechatId = document.getElementById('wechatId').textContent;
+            const copyBtn = document.getElementById('copyBtn');
+            
+            navigator.clipboard.writeText(wechatId).then(() => {
+                // 显示复制成功提示
+                copyBtn.innerHTML = '✅ 已复制到剪贴板';
+                copyBtn.classList.add('copied');
+                
+                // 3秒后恢复原状
+                setTimeout(() => {
+                    copyBtn.innerHTML = '📋 点击复制微信号';
+                    copyBtn.classList.remove('copied');
+                }, 3000);
+                
+                // 可以在这里添加追踪代码
+                trackEvent('copy_wechat_id', { score: totalScore });
+            }).catch(err => {
+                console.error('复制失败:', err);
+                copyBtn.innerHTML = '❌ 复制失败，请手动复制';
+                copyBtn.style.background = '#f44336';
+                copyBtn.style.color = 'white';
+            });
+        }
+        
+        function trackEvent(eventName, data) {
+            // 这里可以添加您的分析代码
+            console.log(`事件: ${eventName}`, data);
+            
+            // 示例：发送到Google Analytics
+            if (typeof gtag !== 'undefined') {
+                gtag('event', eventName, {
+                    event_category: 'conversion',
+                    event_label: 'wechat_id_copy',
+                    value: data.score
+                });
+            }
+        }
+        
+        function restartTest() {
+            currentStep = 1;
+            totalScore = 0;
+            
+            // 重置表单
+            document.querySelectorAll('.option').forEach(opt => {
+                opt.classList.remove('selected');
+            });
+            document.querySelectorAll('input[type="radio"]').forEach(input => {
+                input.checked = false;
+            });
+            
+            // 重置按钮状态
+            document.querySelectorAll('.btn').forEach(btn => {
+                btn.disabled = btn.id !== 'nextBtn1';
+            });
+            
+            // 重置进度条
+            document.getElementById('progress').style.width = '0%';
+            
+            // 重置复制按钮
+            const copyBtn = document.getElementById('copyBtn');
+            copyBtn.innerHTML = '📋 点击复制微信号';
+            copyBtn.classList.remove('copied');
+            copyBtn.style.background = '';
+            copyBtn.style.color = '';
+            
+            // 隐藏结果，显示第一步
+            document.getElementById('result').style.display = 'none';
+            document.querySelectorAll('.step').forEach(step => {
+                step.classList.remove('active');
+            });
+            document.getElementById('step1').classList.add('active');
+        }
+    </script>
+</body>
+</html>
